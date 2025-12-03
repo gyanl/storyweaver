@@ -47,14 +47,19 @@ export default function Home() {
       {!loading && (
         <div className="w-full max-w-[700px] animate-slideInUp">
           <h1 className="text-3xl font-bold mb-8 text-center tracking-widest text-orange-500">
-            INITIALIZE NEW PROTOCOL
+            WEAVE A NEW STORY
           </h1>
+
+
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-bold uppercase tracking-widest text-white/60 mb-3">
                 Describe the story, the setting, the characters
               </label>
+              <div className="text-white/40 text-xs mb-2 font-mono">
+                The AI will fill in any gaps to create a plot
+              </div>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -62,9 +67,7 @@ export default function Home() {
                 placeholder="e.g., A cyberpunk detective story set in Neo-Tokyo. The protagonist is a former cop turned private investigator who specializes in AI crimes. They're joined by a hacker sidekick and pursued by a corrupt corporate security chief..."
                 required
               />
-              <div className="text-white/40 text-xs mt-2 font-mono">
-                The AI will fill in any gaps to create a compelling story with rich characters
-              </div>
+
             </div>
 
             <button
@@ -74,6 +77,29 @@ export default function Home() {
               Initialize
             </button>
           </form>
+
+          <div className="mt-8 p-4 border border-white/10 bg-white/5 rounded-lg">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-orange-500 font-bold text-sm uppercase tracking-wider">Want a shortcut?</h3>
+              <button
+                onClick={() => {
+                  const text = "Describe me and the people in my life like characters in a story, and then write the plot outline for a murder mystery, thriller or sci-fi story with all of these characters. Give just these details as output and nothing else.";
+                  navigator.clipboard.writeText(text);
+                  alert("Prompt copied to clipboard!");
+                }}
+                className="text-xs bg-orange-500/20 hover:bg-orange-500/40 text-orange-500 px-2 py-1 rounded transition-colors uppercase font-mono"
+              >
+                Copy Prompt
+              </button>
+            </div>
+            <p className="text-white/60 text-sm mb-3">
+              Paste this into ChatGPT to generate a personal story outline:
+            </p>
+            <div className="bg-black/40 p-3 rounded text-xs font-mono text-white/40 italic border border-white/5">
+              "Describe me and the people in my life like characters in a story, and then write the plot outline for a murder mystery, thriller, sci-fi or another type of story you think I would enjoy, featuring all of these characters. Give just these details as output and nothing else."
+            </div>
+          </div>
+
         </div>
       )}
     </div>
