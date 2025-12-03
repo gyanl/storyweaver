@@ -43,12 +43,24 @@ export async function POST(req: NextRequest) {
       **User Action**: The user chose "${choiceText}".
 
       **Task**:
-      1. Write the next scene (approx 100-150 words). It should follow logically from the user's action. 
+      1. Write the next scene (approx 50-75 words). 
+         - **ACTION**: The story MUST move forward. Something significant must happen.
          - Style: Atmospheric, second-person ("You..."), slightly mysterious console/terminal vibe.
-         - **IMPORTANT**: The user has access to a console. Encourage them to use it or describe how the console reacts to their presence.
+         - **VISUALS**: You can use tags to style text:
+           - [glitch]text[/glitch] for corrupted data/static.
+           - [shake]text[/shake] for loud noises or impacts.
+           - [terminal]text[/terminal] for computer output.
+           - [warning]text[/warning] for danger.
+         - **CONSTRAINT**: DO NOT NEST TAGS. Use one effect at a time.
+         - **Content**: Introduce the setting and the character's immediate situation. Something disrupts their ordinary world.
+         - **IMPORTANT**: The user has access to a console. Encourage them to use it.
       2. Update the "Current Situation" summary to reflect new developments.
       3. Generate 2 distinct, interesting choices for what the user can do next. 
-         - **CRITICAL**: Choices must be EXTREMELY SHORT (max 3-5 words). Example: "Check logs", "Run diagnostics", "Look around".
+         - **CRITICAL**: Choices must be EXTREMELY SHORT (max 3-5 words). 
+         - **VARIETY**: Choices must lead to DIFFERENT outcomes. Avoid loops.
+         - Use imperative verbs (e.g., "Run", "Check", "Go").
+         - NO adjectives. NO flowery language.
+         - Example: "Check logs", "Run diagnostics", "Look around".
 
       **Output Format**:
       Return ONLY a JSON object with this structure:
