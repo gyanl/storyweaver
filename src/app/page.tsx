@@ -24,24 +24,8 @@ export default async function Home() {
             </p>
           </Link>
 
-          {stories?.map((story) => (
-            <Link
-              href={`/story/${story.slug}`}
-              key={story.id}
-              className="group block p-6 border border-white/10 hover:border-orange-500/50 transition-all duration-300 bg-black/40 hover:bg-black/60 relative overflow-hidden"
-            >
-              <div className="absolute top-0 left-0 w-1 h-full bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <h2 className="text-2xl font-bold text-[#eee] group-hover:text-orange-400 transition-colors">
-                {story.title}
-              </h2>
-            </Link>
-          ))}
+          {/* Story list removed as per request */}
 
-          {stories?.length === 0 && (
-            <div className="text-center text-white/40 font-mono">
-              NO STORIES FOUND IN DATABASE
-            </div>
-          )}
         </div>
       </div>
     </div>
