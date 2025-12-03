@@ -76,7 +76,6 @@ export function Typewriter({ text, baseSpeed = 20, onComplete }: TypewriterProps
 
     return (
         <div className="inline">
-            <div className="text-xs text-red-500">DEBUG: Segments: {segments.length}</div>
             <span id="typewriter">{renderContent()}</span>
             <span className="animate-blink text-orange-500">|</span>
         </div>
