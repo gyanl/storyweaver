@@ -78,3 +78,14 @@ body {
 .animate-blink {
   animation: blink 1s linear infinite;
 }
+
+@keyframes float {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(-100px) rotate(180deg); opacity: 0; }
+}
+
+.animate-float {
+  animation: float linear infinite;
+}

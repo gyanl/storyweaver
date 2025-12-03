@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AsciiLoader } from "@/components/AsciiLoader";
 import { Typewriter } from "@/components/Typewriter";
 import { createClient } from "@supabase/supabase-js";
 
@@ -73,11 +74,19 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
                     }),
                 });
 
+                if (!res.ok) {
+                    console.error("API Error Status:", res.status, res.statusText);
+                    const text = await res.text();
+                    console.error("API Error Body:", text);
+                    setLoading(false);
+                    return;
+                }
+
                 const data = await res.json();
                 if (data.newNodeId) {
                     router.push(`/story/${storySlug}/${data.newNodeId}`);
                 } else {
-                    console.error("Failed to generate node", data);
+                    console.error("Failed to generate node. Data:", data);
                     setLoading(false);
                 }
             } catch (e) {
@@ -100,48 +109,48 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
 
     return (
         <div className="min-h-screen flex flex-col items-center p-4 relative">
-            <div className="w-full max-w-[600px] pt-[60px] min-h-[250px]">
-                {narrativeText && (
-                    <div className="mb-8 text-[#eee] leading-relaxed whitespace-pre-wrap">
-                        {narrativeText}
-                    </div>
-                )}
+            {loading && <AsciiLoader />}
 
-                {consoleText && (
-                    <div className="console-box mb-8">
-                        <Typewriter
-                            text={consoleText}
-                            onComplete={() => setShowOptions(true)}
-                            baseSpeed={10}
-                        />
-                    </div>
-                )}
-            </div>
+            {!loading && (
+                <>
+                    <div className="w-full max-w-[600px] pt-[60px] min-h-[250px]">
+                        {narrativeText && (
+                            <div className="mb-8 text-[#eee] leading-relaxed whitespace-pre-wrap">
+                                {narrativeText}
+                            </div>
+                        )}
 
-            {(showOptions && !loading) && (
-                <div className="animate-appearLater text-center mt-8 w-full max-w-[600px]">
-                    <div className="text-white/75 uppercase font-bold tracking-widest text-sm mb-4">
-                        YOUR CHOICES
+                        {consoleText && (
+                            <div className="console-box mb-8">
+                                <Typewriter
+                                    text={consoleText}
+                                    onComplete={() => setShowOptions(true)}
+                                    baseSpeed={10}
+                                />
+                            </div>
+                        )}
                     </div>
 
-                    <div className="flex flex-col md:flex-row justify-center items-center flex-wrap">
-                        {node.choices.map((choice, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => handleChoice(choice)}
-                                className="option-btn"
-                            >
-                                {choice.text}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
+                    {showOptions && (
+                        <div className="animate-appearLater text-center mt-8 w-full max-w-[600px]">
+                            <div className="text-white/75 uppercase font-bold tracking-widest text-sm mb-4">
+                                YOUR CHOICES
+                            </div>
 
-            {loading && (
-                <div className="animate-appearLater text-center mt-8 text-orange-500 font-mono">
-                    <span className="animate-blink">PROCESSING...</span>
-                </div>
+                            <div className="flex flex-col md:flex-row justify-center items-center flex-wrap">
+                                {node.choices.map((choice, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleChoice(choice)}
+                                        className="option-btn"
+                                    >
+                                        {choice.text}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

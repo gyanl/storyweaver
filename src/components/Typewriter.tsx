@@ -18,9 +18,9 @@ export function Typewriter({ text, baseSpeed = 20, onComplete }: TypewriterProps
             let speed = baseSpeed;
 
             // Mimic the original logic for pacing
-            if (char === ".") speed = 1000;
-            else if (char === " ") speed = 100;
-            else speed = 25;
+            if (char === ".") speed = 120;
+            else if (char === " ") speed = 60;
+            else speed = 40;
 
             const timeout = setTimeout(() => {
                 setDisplayedText((prev) => prev + char);
