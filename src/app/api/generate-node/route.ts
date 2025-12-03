@@ -112,15 +112,21 @@ ${choiceHistoryText}
       
       2. Update the "Current Situation" summary to reflect new developments.
       
-      3. Generate 2 distinct, interesting choices for what the user can do next.
-         - **CRITICAL**: Choices must be EXTREMELY SHORT (max 3-5 words)
-         - **VARIETY**: Choices must lead to DIFFERENT outcomes
-         - **NO REPEATS**: Do NOT offer any of these previously presented options: ${allPreviousChoices.join(", ")}
-         - Use imperative verbs (e.g., "Run", "Check", "Go")
-         - NO adjectives. NO flowery language
-         - Example: "Check logs", "Run diagnostics", "Look around"
-         ${isCustomChoice ? "- **REDIRECT**: If the custom choice was a side quest, offer options that return to the main plot" : ""}
-         ${shouldConclude ? "- **ENDING**: If story concludes, offer choices like 'Reflect' or 'Continue journey'" : ""}
+      3. ${shouldConclude ?
+                `**CONCLUSION**: The story MUST END here.
+           - Write a satisfying conclusion to the narrative arc.
+           - Tie up loose ends.
+           - **CRITICAL**: Return an EMPTY array for choices: "choices": []`
+                :
+                `Generate 2 distinct, interesting choices for what the user can do next.
+           - **CRITICAL**: Choices must be EXTREMELY SHORT (max 3-5 words)
+           - **VARIETY**: Choices must lead to DIFFERENT outcomes
+           - **NO REPEATS**: Do NOT offer any of these previously presented options: ${allPreviousChoices.join(", ")}
+           - Use imperative verbs (e.g., "Run", "Check", "Go")
+           - NO adjectives. NO flowery language
+           - Example: "Check logs", "Run diagnostics", "Look around"
+           ${isCustomChoice ? "- **REDIRECT**: If the custom choice was a side quest, offer options that return to the main plot" : ""}`
+            }
 
       **Output Format**:
       Return ONLY a JSON object with this structure:
@@ -128,8 +134,8 @@ ${choiceHistoryText}
         "content": "The text of the new scene...",
         "summary_state": "The updated summary...",
         "choices": [
-          { "text": "Option 1" },
-          { "text": "Option 2" }
+          ${shouldConclude ? "" : `{ "text": "Option 1" },`}
+          ${shouldConclude ? "" : `{ "text": "Option 2" }`}
         ]
       }
     `;
