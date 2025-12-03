@@ -36,9 +36,9 @@ export function Typewriter({ text, baseSpeed = 20, onComplete }: TypewriterProps
             }
 
             let speed = baseSpeed;
-            if (char === ".") speed = 120;
-            else if (char === " ") speed = 60;
-            else speed = 40;
+            if (char === ".") speed = 20;
+            else if (char === " ") speed = 30;
+            else speed = 10;
 
             const timeout = setTimeout(() => {
                 setCharIndex((prev) => prev + 1);

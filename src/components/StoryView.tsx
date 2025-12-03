@@ -134,7 +134,7 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
                         <div className="w-full max-w-[600px] mb-4">
                             <button
                                 onClick={() => router.push(`/story/${storySlug}/${node.parent_id}`)}
-                                className="flex items-center gap-2 text-orange-500/60 hover:text-orange-500 transition-colors text-sm font-mono uppercase tracking-wider"
+                                className="flex items-center gap-2 text-orange-500/60 hover:text-orange-500 transition-colors text-sm mt-16 font-mono uppercase tracking-wider"
                             >
                                 <svg
                                     className="w-4 h-4"
@@ -159,7 +159,7 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
                             <div className="mb-8 text-[#eee] leading-relaxed whitespace-pre-wrap">
                                 <Typewriter
                                     text={narrativeText}
-                                    baseSpeed={10}
+                                    baseSpeed={20}
                                     onComplete={() => setNarrativeComplete(true)}
                                 />
                             </div>
@@ -170,7 +170,7 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
                                 <Typewriter
                                     text={consoleText}
                                     onComplete={() => setShowOptions(true)}
-                                    baseSpeed={5}
+                                    baseSpeed={20}
                                 />
                             </div>
                         )}

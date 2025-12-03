@@ -34,7 +34,7 @@ export function ShareButton() {
             onClick={handleShare}
             className="flex items-center gap-2 text-orange-500 hover:text-orange-400 transition-colors font-mono uppercase tracking-wider text-sm"
         >
-            <span className="hidden sm:inline">{copied ? "Copied!" : "Share this Story"}</span>
+            <span className="hidden sm:inline">{copied ? "Link Copied!" : "Share this Story"}</span>
             <span className="sm:hidden">{copied ? "Copied!" : "Share"}</span>
             <svg
                 className="w-4 h-4"
