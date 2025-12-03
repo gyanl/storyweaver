@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: var(--font-jetbrains-mono);
+  --color-background: #3b4041;
+  --color-foreground: #e9e6f5;
+  --color-console: #333333;
+  --color-accent: #FF4344;
+}
+
+body {
+  font-family: var(--font-jetbrains-mono);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  line-height: 1.6em;
+  margin: 0;
+}
+
+/* Custom Utilities */
+.console-box {
+  @apply p-6 bg-[var(--color-console)] text-white rounded-xl;
+}
+
+.option-btn {
+  @apply text-[#e9e6f5]/80 border border-[#565656] rounded-3xl bg-[#333] inline-block relative m-2.5 w-[290px] py-3 transition-all duration-250;
+}
+
+.option-btn:hover,
+.option-btn:active {
+  @apply text-white border-white -translate-y-0.5;
+}
+
+/* Animations */
+@keyframes heartPulse {
+  0% { color: pink; margin-bottom: 2px; }
+  50% { color: red; margin-bottom: -2px; }
+  100% { color: pink; margin-bottom: 2px; }
+}
+
+.animate-heartPulse {
+  animation: heartPulse 1s ease-out infinite;
+}
+
+@keyframes floating {
+  0% { transform: translateY(4px); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(4px); }
+}
+
+.animate-floating {
+  animation: floating 2s ease-in-out infinite;
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translate3d(0, 100%, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.5s forwards;
+}
+
+@keyframes appearLater {
+  0% { opacity: 0; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.animate-appearLater {
+  animation: appearLater 1s forwards;
+}
+
+@keyframes blink {
+  0%, 25% { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+
+.animate-blink {
+  animation: blink 1s linear infinite;
+}
