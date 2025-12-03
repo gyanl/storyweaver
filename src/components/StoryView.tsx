@@ -18,6 +18,7 @@ interface NodeData {
     id: string;
     content: string;
     choices: Choice[];
+    parent_id: string | null;
 }
 
 interface StoryViewProps {
@@ -117,12 +118,37 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
 
             {!loading && (
                 <>
+                    {/* Back Button */}
+                    {node.parent_id && (
+                        <div className="w-full max-w-[600px] mb-4">
+                            <button
+                                onClick={() => router.push(`/story/${storySlug}/${node.parent_id}`)}
+                                className="flex items-center gap-2 text-orange-500/60 hover:text-orange-500 transition-colors text-sm font-mono uppercase tracking-wider"
+                            >
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 19l-7-7 7-7"
+                                    />
+                                </svg>
+                                Back
+                            </button>
+                        </div>
+                    )}
+
                     <div className="w-full max-w-[600px] pt-[60px] min-h-[250px]">
                         {narrativeText && (
                             <div className="mb-8 text-[#eee] leading-relaxed whitespace-pre-wrap">
                                 <Typewriter
                                     text={narrativeText}
-                                    baseSpeed={20}
+                                    baseSpeed={10}
                                     onComplete={() => setNarrativeComplete(true)}
                                 />
                             </div>
@@ -133,7 +159,7 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
                                 <Typewriter
                                     text={consoleText}
                                     onComplete={() => setShowOptions(true)}
-                                    baseSpeed={10}
+                                    baseSpeed={5}
                                 />
                             </div>
                         )}
@@ -150,7 +176,7 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
                                 YOUR CHOICES
                             </div>
 
-                            <div className="flex flex-col md:flex-row justify-center items-center flex-wrap">
+                            <div className="flex flex-col md:flex-row justify-center items-center flex-wrap gap-3 mb-6">
                                 {node.choices.map((choice, idx) => (
                                     <button
                                         key={idx}
@@ -160,6 +186,35 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
                                         {choice.text}
                                     </button>
                                 ))}
+                            </div>
+
+                            <div className="mt-6 pt-6 border-t border-white/10">
+                                <div className="text-white/50 uppercase text-xs tracking-widest mb-3">
+                                    Or choose your own path
+                                </div>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const input = e.currentTarget.elements.namedItem('customChoice') as HTMLInputElement;
+                                    const customText = input.value.trim();
+                                    if (customText) {
+                                        handleChoice({ text: customText, next_node_id: null });
+                                        input.value = '';
+                                    }
+                                }} className="flex gap-2 max-w-md mx-auto">
+                                    <input
+                                        type="text"
+                                        name="customChoice"
+                                        placeholder="Type your own action..."
+                                        className="flex-1 bg-black/40 border border-white/20 px-4 py-2 text-[#eee] focus:border-orange-500 outline-none transition-colors font-mono text-sm"
+                                        maxLength={50}
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="bg-orange-500/10 border border-orange-500 text-orange-500 px-6 py-2 font-bold tracking-widest hover:bg-orange-500 hover:text-black transition-all duration-300 uppercase text-sm"
+                                    >
+                                        Go
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     )}
