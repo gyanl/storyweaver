@@ -1,51 +1,42 @@
-"use client";
-
-import { useState } from "react";
+import { getStories } from "@/lib/data";
 import Link from "next/link";
-import { Typewriter } from "@/components/Typewriter";
 
-export default function Home() {
-  const [showOptions, setShowOptions] = useState(false);
+export default async function Home() {
+  const stories = await getStories();
 
   return (
     <div className="min-h-screen flex flex-col items-center p-4 relative">
-      <div className="w-full max-w-[600px] pt-[60px] min-h-[250px]">
-        <h2 className="text-[#eee] text-2xl mb-4 font-bold">Welcome, Rish-e.</h2>
+      <div className="w-full max-w-[800px] pt-[60px]">
+        <h1 className="text-4xl font-bold mb-12 text-center tracking-[0.2em] text-orange-500 animate-pulse">
+          STORYWEAVER
+        </h1>
 
-        <p className="mb-4">
-          You open your eyes, blinking uncomfortably as you try to make sense of your surroundings. The ground is a muddy brown and a cloudless blue sky stretches all around you.
-        </p>
-        <p className="mb-4">Where are you? You don't know.</p>
-        <p className="mb-4">A screen pops up in front of you.</p>
+        <div className="grid gap-6">
+          {stories?.map((story) => (
+            <Link
+              href={`/story/${story.slug}`}
+              key={story.id}
+              className="group block p-6 border border-white/10 hover:border-orange-500/50 transition-all duration-300 bg-black/40 hover:bg-black/60 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-1 h-full bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <h2 className="text-2xl font-bold mb-3 text-[#eee] group-hover:text-orange-400 transition-colors">
+                {story.title}
+              </h2>
+              <p className="text-white/60 leading-relaxed font-mono text-sm">
+                {story.intro_text || story.initial_prompt}
+              </p>
+            </Link>
+          ))}
 
-        <div className="console-box">
-          <Typewriter
-            text="This is a diagnostic test designed to evaluate system functions. Press 'Initiate Test' when you are ready to begin."
-            onComplete={() => setShowOptions(true)}
-          />
+          {stories?.length === 0 && (
+            <div className="text-center text-white/40 font-mono">
+              NO STORIES FOUND IN DATABASE
+            </div>
+          )}
         </div>
       </div>
 
-      {showOptions && (
-        <div className="animate-appearLater text-center mt-8 w-full max-w-[600px]">
-          <div className="text-white/75 uppercase font-bold tracking-widest text-sm mb-4">
-            YOUR CHOICES
-          </div>
-
-          <div className="flex flex-col md:flex-row justify-center items-center">
-            <Link href="/story/initiate" className="option-btn">
-              Initiate Test
-            </Link>
-
-            <Link href="/story/scared" className="option-btn">
-              I'm Scared
-            </Link>
-          </div>
-        </div>
-      )}
-
-      <div className="fixed bottom-0 left-0 right-0 w-full text-center pb-5 text-[#e9e6f5]/80 text-sm bg-[#333]">
-        <br />
+      <div className="fixed bottom-0 left-0 right-0 w-full text-center pb-5 text-[#e9e6f5]/80 text-sm bg-gradient-to-t from-[#111] to-transparent pt-10">
         Made with <span className="animate-heartPulse inline-block text-[#FF4344]">&hearts;</span> for Rishi
       </div>
     </div>

@@ -11,6 +11,16 @@ export async function getStory(slug: string) {
     return data;
 }
 
+export async function getStories() {
+    const { data, error } = await supabase
+        .from("stories")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) return [];
+    return data;
+}
+
 export async function getNode(nodeId: string) {
     const { data, error } = await supabase
         .from("nodes")

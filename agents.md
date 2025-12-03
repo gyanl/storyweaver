@@ -1,77 +1,88 @@
-# Implementation Plan: Generalizing Rish-e with Next.js & AI
+# Project Blueprint: StoryWeaver - AI Interactive Fiction Engine
 
 ## 1. Project Overview
-Transform the static "Rish-e" site into a dynamic, AI-powered interactive storytelling platform using Next.js. The system will allow users to play through pre-defined stories or generate new paths on the fly.
+**Goal**: Build "StoryWeaver," a dynamic, AI-powered interactive storytelling platform. It is a scalable engine where users can play through pre-defined stories or generate new narrative paths on the fly.
+**Core Experience**: A retro-futuristic "console" aesthetic (scanlines, typewriter text) where users read atmospheric text and make choices that shape the story.
 
-## 2. Architecture & Tech Stack
-- **Framework**: Next.js 14+ (App Router)
-- **Styling**: Tailwind CSS (to replicate and extend the existing terminal/console aesthetic)
-- **Database**: PostgreSQL (via Supabase or similar) to store the story tree, nodes, and user sessions.
-- **AI Provider**: OpenAI API (GPT-4o) or Anthropic (Claude 3.5 Sonnet) for high-quality narrative generation.
-- **State Management**: React Server Components + Client Hooks.
+## 2. Tech Stack & Architecture
+- **Framework**: Next.js 15+ (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS (Custom animations for typewriter, blink, scanlines)
+- **Database**: Supabase (PostgreSQL)
+- **AI Provider**: Google Gemini (Gemini 2.0 Flash Exp) via `@google/generative-ai`
+- **Deployment**: Vercel (recommended)
 
-## 3. Core Concepts
+## 3. Database Schema (Supabase)
+Two core tables drive the engine:
 
-### 3.1. The "Overarching Story Structure" (Hidden Context)
-To maintain consistency, we will maintain a hidden state object that is passed to the AI but never shown to the user. This includes:
-- **World State**: Current location, time, atmosphere.
-- **Plot Arc**: Current tension level, active mysteries, long-term goals.
-- **Character State**: Inventory, health, knowledge.
-- **Immediate Possibilities**: Hidden notes on what *could* happen next, used to generate the options.
+### `stories`
+- `id` (uuid, PK): Unique identifier.
+- `title` (text): Display title.
+- `slug` (text, unique): URL-friendly identifier (e.g., `rish-e`).
+- `intro_text` (text): Text shown on the landing/intro card.
+- `initial_prompt` (text): The core "system prompt" or context for the AI (e.g., "A sci-fi mystery where...").
+- `created_at` (timestamp).
 
-### 3.2. The Node System
-The story is a graph of nodes.
-- **Existing Nodes**: If a user picks an option that another user has already explored, we load it from the DB instantly.
-- **New Nodes**: If a user picks an option (or writes a custom prompt) that hasn't been generated, we call the AI.
+### `nodes`
+- `id` (uuid, PK): Unique identifier.
+- `story_id` (uuid, FK): Links to `stories`.
+- `parent_id` (uuid, FK, nullable): Links to the previous node. Null for the root node.
+- `content` (text): The narrative text displayed to the user.
+- `summary_state` (text): **Critical**. A hidden summary of the story *so far* (inventory, plot points, world state). Passed to AI to maintain continuity.
+- `choices` (jsonb): Array of objects: `[{ "text": "Option A", "next_node_id": "uuid" | null }]`.
+    - If `next_node_id` is null, selecting this choice triggers AI generation.
 
-## 4. AI "Agents" Workflow
-We will define specific prompts/roles for the generation process:
+## 4. Key Features & Implementation Logic
 
-1.  **The Dungeon Master (Generator)**
-    - **Input**: Previous Node Content, Overarching Story Summary, User Choice (or Custom Prompt).
-    - **Task**: Write the next segment of the story (approx. 100-200 words) in the specific style (e.g., "Rish-e" console style).
-    - **Output**: New Story Text.
+### 4.1. Landing Page (`/`)
+- Displays the intro for the featured story ("Rish-e").
+- **Crucial Logic**: Links to the story must use the **slug** and pass the initial choice as a query parameter to seamless start the game.
+    - Example: `<Link href="/story/rish-e?choice=Initiate Test">`
+- **Aesthetic**: Typewriter effect for intro text, "console" styling.
 
-2.  **The Scribe (Summarizer)**
-    - **Input**: Old Summary, New Story Text.
-    - **Task**: Update the "Overarching Story Structure". Remove obsolete details, add new plot points.
-    - **Output**: Updated Summary.
+### 4.2. Story Routing (`/story/[storyId]/[nodeId]`)
+- **Route Structure**: `/story/[slug]/[nodeId]` (Note: `storyId` param is actually the slug).
+- **Page Logic**:
+    1.  **Resolve Story**: Fetch story by `slug`. If not found -> 404.
+    2.  **Resolve Node**:
+        - If `nodeId` is missing (root route `/story/[slug]`): Fetch the root node (where `parent_id` is null) and redirect to `/story/[slug]/[rootNodeId]`.
+        - **Important**: Preserve `searchParams` (like `?choice=...`) during this redirect.
+        - If `nodeId` is present: Fetch the specific node.
+    3.  **Render**: Pass node data to the client-side `StoryView` component.
 
-3.  **The Oracle (Option Generator)**
-    - **Input**: New Story Text, Updated Summary.
-    - **Task**: Generate 2 distinct, compelling choices for the user to take next.
-    - **Output**: Option A, Option B.
+### 4.3. The `StoryView` Component
+- **Responsibilities**:
+    - Display narrative text with a typewriter effect.
+    - Show choices *after* text finishes typing.
+    - Handle navigation:
+        - **Existing Path**: If choice has a `next_node_id`, `router.push` to that node.
+        - **New Path**: If `next_node_id` is null, call `/api/generate-node`.
+    - **Auto-Choice**: Check `useSearchParams` for a `choice` param. If present, automatically trigger that choice logic (simulating a seamless transition from the landing page).
 
-## 5. Implementation Steps
+### 4.4. AI Generation Flow (`/api/generate-node`)
+- **Input**: `storyId` (UUID), `parentNodeId`, `choiceText`.
+- **Process**:
+    1.  Fetch `parentNode` (for context and summary) and `story` (for initial prompt).
+    2.  **Prompt Engineering**:
+        - Role: "Dungeon Master".
+        - Context: `story.initial_prompt` + `parentNode.summary_state`.
+        - Action: User chose `choiceText`.
+        - Output Requirement: JSON with `content` (next scene), `summary_state` (updated context), and `choices` (2 new options).
+    3.  **Call AI**: Use Gemini Flash model with JSON mode.
+    4.  **Persist**:
+        - Insert new row into `nodes`.
+        - **Update Parent**: Update the `choices` JSON in the `parentNode` to link the selected choice to the new `node.id`.
+    5.  **Return**: New node ID.
 
-### Phase 1: Setup & Migration
-1.  Initialize a new Next.js project.
-2.  Port `style.css` to global CSS or Tailwind components.
-3.  Recreate the "Typewriter" effect as a reusable React component (`<Typewriter text="..." />`).
-4.  Create the basic layout (Console wrapper, scanlines, CRT effects).
+## 5. Critical Learnings & "Gotchas"
+1.  **Slugs vs. UUIDs**:
+    - The URL should use the **slug** (`rish-e`) for SEO and readability.
+    - The database relations use **UUIDs**.
+    - **Fix**: Ensure `StoryView` receives the `slug` prop to construct URLs, even though it uses the `storyId` (UUID) for API calls.
+2.  **Query Params & Redirects**:
+    - When redirecting from `/story/[slug]` to `/story/[slug]/[rootId]`, you **must** forward `searchParams`. Otherwise, the "start from choice" feature breaks.
+3.  **Linked List Integrity**:
+    - When generating a new node, it is vital to *update the parent node's choice* to point to the new child. This turns a "dynamic" choice into a "static" one for future users (caching the path).
 
-### Phase 2: Database & Schema
-1.  Define `Stories` table (id, title, initial_prompt).
-2.  Define `Nodes` table (id, story_id, parent_id, content, summary_state, choices_json).
-3.  Seed the DB with the original "Rish-e" story as the first "Story".
-
-### Phase 3: The Game Engine
-1.  **Story View**: Dynamic route `/story/[storyId]/[nodeId]`.
-2.  **Navigation**: Clicking an option fetches the next node ID.
-    - If `next_node_id` exists -> Router.push.
-    - If `next_node_id` is null -> Trigger Generation API.
-
-### Phase 4: AI Integration
-1.  Create API route `/api/generate-node`.
-2.  Implement the 3-step AI workflow (Generate Content -> Update Summary -> Generate Options).
-3.  Handle "Custom Prompt" (Credit check -> Pass custom prompt as User Choice).
-
-### Phase 5: Landing Page & Polish
-1.  Create a "Story Picker" landing page.
-2.  Implement "Credits" mock system (local storage or simple DB field).
-3.  Add loading states (e.g., "System Processing...", "Computing Outcomes...").
-
-## 6. Future Considerations
-- User Accounts & Auth.
-- Persistent Inventory System.
-- Image Generation for each scene.
+## 6. Prompt for Recreation
+To recreate this project, provide an AI agent with this entire document. It contains the schema, architectural decisions, and specific logic fixes required to build a robust version of StoryWeaver from scratch.

@@ -45,5 +45,5 @@ export default async function StoryPage({ params }: PageProps) {
 
     if (!currentNode) return notFound();
 
-    return <StoryView initialNode={currentNode} storyId={story.id} />;
+    return <StoryView initialNode={currentNode} storyId={story.id} storySlug={story.slug} />;
 }
