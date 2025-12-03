@@ -51,7 +51,7 @@ export function AsciiLoader() {
             ))}
             <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-green-500 font-mono animate-pulse tracking-widest text-xl">
-                    ...
+                    This could take a while...
                 </span>
             </div>
         </div>
