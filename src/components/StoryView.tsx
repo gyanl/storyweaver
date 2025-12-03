@@ -33,11 +33,14 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Reset state when node changes (e.g. navigation)
+    const [narrativeComplete, setNarrativeComplete] = useState(false);
+
+    // Reset state when node changes
     useEffect(() => {
         setNode(initialNode);
         setShowOptions(false);
         setLoading(false);
+        setNarrativeComplete(false);
     }, [initialNode]);
 
     // Handle auto-choice from URL
@@ -102,10 +105,11 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
     const consoleText = parts.length > 1 ? parts[1].trim() : "";
 
     useEffect(() => {
-        if (!consoleText && narrativeText) {
-            setShowOptions(true);
+        // If there is no narrative text, mark it as complete immediately
+        if (!narrativeText && !narrativeComplete) {
+            setNarrativeComplete(true);
         }
-    }, [consoleText, narrativeText]);
+    }, [narrativeText, narrativeComplete]);
 
     return (
         <div className="min-h-screen flex flex-col items-center p-4 relative">
@@ -116,11 +120,15 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
                     <div className="w-full max-w-[600px] pt-[60px] min-h-[250px]">
                         {narrativeText && (
                             <div className="mb-8 text-[#eee] leading-relaxed whitespace-pre-wrap">
-                                {narrativeText}
+                                <Typewriter
+                                    text={narrativeText}
+                                    baseSpeed={20}
+                                    onComplete={() => setNarrativeComplete(true)}
+                                />
                             </div>
                         )}
 
-                        {consoleText && (
+                        {consoleText && narrativeComplete && (
                             <div className="console-box mb-8">
                                 <Typewriter
                                     text={consoleText}
@@ -128,6 +136,11 @@ export default function StoryView({ initialNode, storyId, storySlug }: StoryView
                                     baseSpeed={10}
                                 />
                             </div>
+                        )}
+
+                        {/* If no console text, show options after narrative */}
+                        {!consoleText && narrativeComplete && !showOptions && (
+                            <div className="hidden" ref={(el) => { if (el) setShowOptions(true); }}></div>
                         )}
                     </div>
 
